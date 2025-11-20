@@ -14,6 +14,10 @@
 
 ## News
 
+📢 **20/Nov/25** - NEW [GENEA Gesture-Generation Leaderboard](https://genea-workshop.github.io/leaderboard/) comes! DiffuseStyleGesture achieves the **highest Speech-Gesture Alignment**, but it employs manual conversion to SMPL-X, which may explain its relatively lower motion realism (even for reconstruction) on the BEAT2 task compared to models trained end-to-end using native SMPL-X features (see Supplementary Material B.1 of [the official paper](https://arxiv.org/pdf/2511.01233)).
+
+📢 **15/Dec/24** - Annual Outstanding Paper of Shenzhen Association for Science and Technology, 2024
+
 📢 **9/Oct/23** - We obtained the [**REPRODUCIBILITY AWARD**](https://genea-workshop.github.io/2023/challenge/#reproducibility-award) by [GENEA](https://genea-workshop.github.io/2023/) Committee, so we strongly recommend trying [DiffuseStyleGesture+](BEAT-TWH-main) in advance compared to code of DiffuseStyleGesture is partially optimized.
 
 📢 **29/Aug/23** - Release the [paper](https://arxiv.org/abs/2308.13879) of DiffuseStyleGesture+, refer to the official [paper](https://arxiv.org/abs/2308.12646) of [GENEA Challenge 2023](https://genea-workshop.github.io/2023/challenge/) to get more.
