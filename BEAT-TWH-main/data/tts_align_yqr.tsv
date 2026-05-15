@@ -1,0 +1,221 @@
+{
+  "transcript": " Nice to meet you all. This is a TTS synthesized audio for the diffuse style gesture plus entry to the Geneva Challenge 2023 demo video.",
+  "words": [
+    {
+      "alignedWord": "nice",
+      "case": "success",
+      "end": 0.429,
+      "endOffset": 5,
+      "start": 0.209,
+      "startOffset": 1,
+      "word": "Nice"
+    },
+    {
+      "alignedWord": "to",
+      "case": "success",
+      "end": 0.529,
+      "endOffset": 8,
+      "start": 0.469,
+      "startOffset": 6,
+      "word": "to"
+    },
+    {
+      "alignedWord": "meet",
+      "case": "success",
+      "end": 0.75,
+      "endOffset": 13,
+      "start": 0.569,
+      "startOffset": 9,
+      "word": "meet"
+    },
+    {
+      "alignedWord": "you",
+      "case": "success",
+      "end": 0.91,
+      "endOffset": 17,
+      "start": 0.77,
+      "startOffset": 14,
+      "word": "you"
+    },
+    {
+      "alignedWord": "all.",
+      "case": "success",
+      "end": 1.19,
+      "endOffset": 22,
+      "start": 1.05,
+      "startOffset": 18,
+      "word": "all."
+    },
+    {
+      "alignedWord": "this",
+      "case": "success",
+      "end": 1.67,
+      "endOffset": 27,
+      "start": 1.51,
+      "startOffset": 23,
+      "word": "This"
+    },
+    {
+      "alignedWord": "is",
+      "case": "success",
+      "end": 1.81,
+      "endOffset": 30,
+      "start": 1.73,
+      "startOffset": 28,
+      "word": "is"
+    },
+    {
+      "alignedWord": "a",
+      "case": "success",
+      "end": 1.87,
+      "endOffset": 32,
+      "start": 1.85,
+      "startOffset": 31,
+      "word": "a"
+    },
+    {
+      "alignedWord": "tts",
+      "case": "success",
+      "end": 2.411,
+      "endOffset": 36,
+      "start": 1.93,
+      "startOffset": 33,
+      "word": "TTS"
+    },
+    {
+      "alignedWord": "synthesized",
+      "case": "success",
+      "end": 3.031,
+      "endOffset": 48,
+      "start": 2.431,
+      "startOffset": 37,
+      "word": "synthesized"
+    },
+    {
+      "alignedWord": "audio",
+      "case": "success",
+      "end": 3.511,
+      "endOffset": 54,
+      "start": 3.151,
+      "startOffset": 49,
+      "word": "audio"
+    },
+    {
+      "alignedWord": "for",
+      "case": "success",
+      "end": 3.792,
+      "endOffset": 58,
+      "start": 3.672,
+      "startOffset": 55,
+      "word": "for"
+    },
+    {
+      "alignedWord": "the",
+      "case": "success",
+      "end": 3.872,
+      "endOffset": 62,
+      "start": 3.812,
+      "startOffset": 59,
+      "word": "the"
+    },
+    {
+      "alignedWord": "diffuse",
+      "case": "success",
+      "end": 4.252,
+      "endOffset": 70,
+      "start": 3.912,
+      "startOffset": 63,
+      "word": "diffuse"
+    },
+    {
+      "alignedWord": "style",
+      "case": "success",
+      "end": 4.492,
+      "endOffset": 76,
+      "start": 4.272,
+      "startOffset": 71,
+      "word": "style"
+    },
+    {
+      "alignedWord": "gesture",
+      "case": "success",
+      "end": 4.872,
+      "endOffset": 84,
+      "start": 4.532,
+      "startOffset": 77,
+      "word": "gesture"
+    },
+    {
+      "alignedWord": "plus",
+      "case": "success",
+      "end": 5.173,
+      "endOffset": 89,
+      "start": 4.932,
+      "startOffset": 85,
+      "word": "plus"
+    },
+    {
+      "alignedWord": "entry",
+      "case": "success",
+      "end": 5.573,
+      "endOffset": 95,
+      "start": 5.233,
+      "startOffset": 90,
+      "word": "entry"
+    },
+    {
+      "alignedWord": "to",
+      "case": "success",
+      "end": 5.853,
+      "endOffset": 98,
+      "start": 5.753,
+      "startOffset": 96,
+      "word": "to"
+    },
+    {
+      "alignedWord": "the",
+      "case": "success",
+      "end": 5.953,
+      "endOffset": 102,
+      "start": 5.893,
+      "startOffset": 99,
+      "word": "the"
+    },
+    {
+      "alignedWord": "geneva",
+      "case": "success",
+      "end": 6.333,
+      "endOffset": 109,
+      "start": 5.993,
+      "startOffset": 103,
+      "word": "Geneva"
+    },
+    {
+      "alignedWord": "challenge",
+      "case": "success",
+      "end": 6.734,
+      "endOffset": 119,
+      "start": 6.373,
+      "startOffset": 110,
+      "word": "Challenge"
+    },
+    {
+      "alignedWord": "demo",
+      "case": "success",
+      "end": 7.034,
+      "endOffset": 129,
+      "start": 6.814,
+      "startOffset": 125,
+      "word": "demo"
+    },
+    {
+      "alignedWord": "video.",
+      "case": "success",
+      "end": 7.154,
+      "endOffset": 136,
+      "start": 7.054,
+      "startOffset": 130,
+      "word": "video."
+    }
+  ]
+}

@@ -103,15 +103,18 @@ class TrainLoop:
     def run_loop(self):
 
         for epoch in range(self.num_steps):
-            for batch in tqdm(self.data):
+            print('epoch {}: '.format(epoch))
+            # Use direct iteration instead of len()
+            for batch in tqdm(self.data, desc=f"Epoch {epoch}"):
                 if not (not self.lr_anneal_steps or self.step + self.resume_step < self.lr_anneal_steps):
                     break
-
                 cond_ = {'y':{}}
 
                 wavlm, pose_seq, style = batch
+                print(f"wavlm.shape: {wavlm.shape}, pose_seq.shape: {pose_seq.shape}, style.shape: {style.shape}")
                 motion = pose_seq.permute(0, 2, 1).unsqueeze(2).to(self.device, non_blocking=True)
-
+                print(f"motion.shape: {motion.shape}")
+                
                 cond_['y']['seed'] = motion[..., 0:self.n_seed]
                 # cond_['y']['seed_last'] = motion[..., -self.n_seed:]        # attention5
                 cond_['y']['style'] = style.to(self.device, non_blocking=True)

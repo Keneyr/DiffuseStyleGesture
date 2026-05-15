@@ -18,7 +18,7 @@ def parse_args():
     parser.add_argument('--config', default='./configs/DiffuseStyleGesture.yml')
     parser.add_argument('--gpu', type=str, default='2')
     parser.add_argument('--no_cuda', type=list, default=['2'])
-    parser.add_argument('--dataset', type=str, default='BEAT')
+    parser.add_argument('--dataset', type=str, default='TWH')
     
     args = parser.parse_args()
     return args

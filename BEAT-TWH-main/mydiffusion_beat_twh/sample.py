@@ -15,11 +15,11 @@ import torch
 import torch.nn.functional as F
 from easydict import EasyDict
 import math
-from process_BEAT_bvh import wav2wavlm, pose2bvh, pose2bvh_bugfix
-from process_TWH_bvh import pose2bvh as pose2bvh_twh
-from process_TWH_bvh import wavlm_init, load_metadata
+from process.process_BEAT_bvh import wav2wavlm, pose2bvh, pose2bvh_bugfix
+from process.process_TWH_bvh import pose2bvh as pose2bvh_twh
+from process.process_TWH_bvh import wavlm_init, load_metadata
 import argparse
-
+from datetime import datetime
 
 speaker_id_dict = {
     2: 0,
@@ -41,7 +41,7 @@ def create_model_and_diffusion(args):
     return model, diffusion
 
 
-def inference(args, save_dir, prefix, textaudio, sample_fn, model, n_frames=0, smoothing=False, skip_timesteps=0, style=None, seed=123456, dataset='BEAT'):
+def inference(args, save_dir, prefix, textaudio, sample_fn, model, n_frames=0, smoothing=False, skip_timesteps=0, style=None, seed=123456, dataset='TWH'):
 
     torch.manual_seed(seed)
     if dataset == 'BEAT':
@@ -96,8 +96,8 @@ def inference(args, save_dir, prefix, textaudio, sample_fn, model, n_frames=0, s
     shape_ = (1, model.njoints, model.nfeats, args.n_poses)
     out_list = []
     for i in range(0, num_subdivision):
-        print(i, num_subdivision)
-        model_kwargs_['y']['audio'] = audio_reshape[:, i:i + 1]
+        print(i, num_subdivision)   #15
+        model_kwargs_['y']['audio'] = audio_reshape[:, i:i + 1] #[120, 15, 1435]
         if i == 0:
             if args.name == 'DiffuseStyleGesture':
                 pad_zeros = torch.zeros([args.n_seed, 1, args.audio_feature_dim]).to(mydevice)
@@ -125,7 +125,7 @@ def inference(args, save_dir, prefix, textaudio, sample_fn, model, n_frames=0, s
             seed_gesture_vel = seed_gesture[1:] - seed_gesture[:-1]
             seed_gesture_acc = seed_gesture_vel[1:] - seed_gesture_vel[:-1]
             seed_gesture_ = np.concatenate((seed_gesture[2:], seed_gesture_vel[1:], seed_gesture_acc), axis=1)      # (args.n_seed, args.njoints)
-            seed_gesture_ = torch.from_numpy(seed_gesture_).float().transpose(0, 1).unsqueeze(0).to(mydevice)
+            seed_gesture_ = torch.from_numpy(seed_gesture_).float().transpose(0, 1).unsqueeze(0).to(mydevice)   #[1, 2232, 30]
             model_kwargs_['y']['seed'] = seed_gesture_.unsqueeze(2)
 
         else:
@@ -150,7 +150,7 @@ def inference(args, save_dir, prefix, textaudio, sample_fn, model, n_frames=0, s
             dump_steps=None,
             noise=None,  # None, torch.randn(*shape_, device=mydevice)
             const_noise=False,
-        )
+        ) # (1, 2232, 1, 150)
         # smoothing motion transition
         if len(out_list) > 0 and args.n_seed != 0:
             last_poses = out_list[-1][..., -args.n_seed:]        # # (1, model.njoints, 1, args.n_seed)
@@ -171,9 +171,9 @@ def inference(args, save_dir, prefix, textaudio, sample_fn, model, n_frames=0, s
         out_list.append(sample)
 
     if "v0" in args.version:
-        motion_feature_division = 3
+        motion_feature_division = 3 # rotation/position, angular/velocity, angular/acceleration
     elif "v2" in args.version:
-        motion_feature_division = 1
+        motion_feature_division = 1 # position only
     else:
         raise ValueError("wrong version name")
 
@@ -182,10 +182,10 @@ def inference(args, save_dir, prefix, textaudio, sample_fn, model, n_frames=0, s
         out_dir_vec_1 = np.vstack(out_list[:-1])
         sampled_seq_1 = out_dir_vec_1.squeeze(2).transpose(0, 2, 1).reshape(batch_size, -1, model.njoints // motion_feature_division)
         out_dir_vec_2 = np.array(out_list[-1]).squeeze(2).transpose(0, 2, 1)
-        sampled_seq = np.concatenate((sampled_seq_1, out_dir_vec_2), axis=1)
+        sampled_seq = np.concatenate((sampled_seq_1, out_dir_vec_2), axis=1)    #(1, 1830, 744)
     else:
         sampled_seq = np.array(out_list[-1]).squeeze(2).transpose(0, 2, 1)
-    sampled_seq = sampled_seq[:, args.n_seed:]
+    sampled_seq = sampled_seq[:, args.n_seed:] # (1, 1800, 744)
 
     out_poses = np.multiply(sampled_seq[0], data_std) + data_mean
     print(out_poses.shape, real_n_frames)
@@ -201,7 +201,7 @@ def inference(args, save_dir, prefix, textaudio, sample_fn, model, n_frames=0, s
         pose2bvh_twh(out_poses, save_dir, prefix, pipeline_path="../process/resource/pipeline_rotmat_62.sav")
 
 
-def main(args, save_dir, model_path, tst_path=None, max_len=0, skip_timesteps=0, tst_prefix=None, dataset='BEAT', 
+def main(args, save_dir, model_path, tst_path=None, max_len=0, skip_timesteps=0, tst_prefix=None, dataset='TWH', 
          wav_path=None, txt_path=None, wavlm_path=None, word2vector_path=None):
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
@@ -246,14 +246,22 @@ def main(args, save_dir, model_path, tst_path=None, max_len=0, skip_timesteps=0,
 
             inference(args, save_dir, filename, textaudio, sample_fn, model, n_frames=max_len, smoothing=True, skip_timesteps=skip_timesteps, style=speaker, seed=123456, dataset=dataset)
     else:
+        # record the timestamp
+        now = datetime.now()
+        start_timestamp = now.strftime("%Y%m%d_%H%M%S")
+        start_time = datetime.strptime("20250724_191912", "%Y%m%d_%H%M%S")
         # 20230805 update: generate audiowavlm..., sample from single one
         if dataset == 'TWH':
-            from process_TWH_bvh import load_wordvectors, load_audio, load_tsv
+            from process.process_TWH_bvh import load_wordvectors, load_audio, load_tsv
         elif dataset == 'BEAT':
-            from process_BEAT_bvh import load_wordvectors, load_audio, load_tsv
+            from process.process_BEAT_bvh import load_wordvectors, load_audio, load_tsv
 
         wavlm_model, cfg = wavlm_init(wavlm_path, mydevice)
         word2vector = load_wordvectors(fname=word2vector_path)
+
+        now = datetime.now()
+        mid_timestamp = now.strftime("%Y%m%d_%H%M%S")
+        mid_time = datetime.strptime("20250724_192016", "%Y%m%d_%H%M%S") 
 
         wav = load_audio(wav_path, wavlm_model, cfg)
         clip_len = wav.shape[0]
@@ -266,25 +274,39 @@ def main(args, save_dir, model_path, tst_path=None, max_len=0, skip_timesteps=0,
         filename = 'tts'
         inference(args, save_dir, filename, textaudio, sample_fn, model, n_frames=max_len, smoothing=True,
                   skip_timesteps=skip_timesteps, style=speaker, seed=123456, dataset=dataset)
+        # record the timestamp
+        now = datetime.now()
+        end_timestamp = now.strftime("%Y%m%d_%H%M%S")
+        end_time = datetime.strptime("20250724_192032", "%Y%m%d_%H%M%S")
+        # Calculate delays
+        setup_time = (mid_time - start_time).total_seconds()  # 64 seconds
+        inference_time = (end_time - mid_time).total_seconds()  # 16 seconds
+        total_time = (end_time - start_time).total_seconds()    # 80 seconds
+        print(f"Setup phase: {setup_time} seconds")      # 64s
+        print(f"Inference phase: {inference_time} seconds")  # 16s  
+        print(f"Total time: {total_time} seconds")       # 80s
 
 
 if __name__ == '__main__':
     '''
-    python sample.py --config=./configs/DiffuseStyleGesture.yml --gpu 7 --model_path "./BEAT_mymodel4_512_v0/model001260000.pt" --max_len 0 --tst_prefix '2_scott_0_1_1'
+    cd ../mydiffusion_beat_twh
+    python sample.py --config=./configs/DiffuseStyleGesture.yml --dataset TWH --gpu 0 --model_path './TWH_mymodel4_512_v0/model001200000.pt' --max_len 0 \
+    --wav_path ../data/tts.wav --txt_path ../data/tts_align_process.tsv \
+    --wavlm_path "../process/WavLM/WavLM-Large.pt" --word2vector_path "../process/crawl-300d-2M.vec"
     '''
     parser = argparse.ArgumentParser(description='DiffuseStyleGesture')
     parser.add_argument('--config', default='./configs/DiffuseStyleGesture.yml')
     parser.add_argument('--gpu', type=str, default='0')
     parser.add_argument('--tst_prefix', nargs='+')
     parser.add_argument('--no_cuda', type=list, default=['0'])
-    parser.add_argument('--model_path', type=str, default='./model000450000.pt')
+    parser.add_argument('--model_path', type=str, default='./model001200000.pt')
     parser.add_argument('--tst_path', type=str, default=None)
     parser.add_argument('--wav_path', type=str, default=None)
     parser.add_argument('--txt_path', type=str, default=None)
     parser.add_argument('--save_dir', type=str, default='sample_dir')
     parser.add_argument('--max_len', type=int, default=0)
     parser.add_argument('--skip_timesteps', type=int, default=0)
-    parser.add_argument('--dataset', type=str, default='BEAT')
+    parser.add_argument('--dataset', type=str, default='TWH')
     parser.add_argument('--wavlm_path', type=str, default='./WavLM/WavLM-Large.pt')
     parser.add_argument('--word2vector_path', type=str, default='./crawl-300d-2M.vec')
     

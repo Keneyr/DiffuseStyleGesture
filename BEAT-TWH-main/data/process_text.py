@@ -1,10 +1,10 @@
 import pdb
 
 
-aligned_path = 'tts_align.txt'
+aligned_path = 'tts_align_yqr.tsv'
 
 
-with open(aligned_path.replace('.txt', '_process.tsv'), 'w') as output:
+with open(aligned_path.replace('.tsv', '_process.tsv'), 'w') as output:
     with open(aligned_path, 'r') as f:
         FLAG_end_time = FLAG_start_time = FLAG_word = False
         end_time = start_time = word = ''

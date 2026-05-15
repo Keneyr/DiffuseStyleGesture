@@ -12,7 +12,7 @@ import os
 import sys
 [sys.path.append(i) for i in ['.', '..', '../model', '../train']]
 from utils.model_util import create_gaussian_diffusion
-from train.training_loop import TrainLoop
+from train.training_loop_yqr import TrainLoop
 from model.mdm import MDM
 
 # trans_enc: transformer encoder
@@ -28,16 +28,25 @@ def create_model_and_diffusion(args):
 def main(args):
     # Get data, data loaders and collate function ready
     print("Loading dataset into memory ...")
-    trn_dataset = SpeechGestureDataset(args.h5file, motion_dim=args.motion_dim, style_dim=args.style_dim,
-                                       sequence_length=args.n_poses, npy_root="../process", 
-                                       version=args.version, dataset=args.dataset)        # debug
+    trn_dataset = SpeechGestureDataset(
+        args.h5file,
+        motion_dim=args.motion_dim,
+        style_dim=args.style_dim,
+        sequence_length=args.n_poses,
+        npy_root="../process",
+        version=args.version,
+        dataset=args.dataset,
+        in_memory=False,
+    )
 
-    train_loader = DataLoader(trn_dataset, num_workers=args.num_workers,
-                              #sampler=RandomSampler(0, len(trn_dataset)),
-                              shuffle=True,  # Add this instead
-                              batch_size=args.batch_size,
-                              pin_memory=True,
-                              drop_last=False)
+    train_loader = DataLoader(
+        trn_dataset,
+        num_workers=int(args.num_workers),
+        #sampler=RandomSampler(0, len(trn_dataset)),
+        shuffle=True,  # Add this instead
+        batch_size=args.batch_size,
+        pin_memory=torch.cuda.is_available(),
+        drop_last=False)
 
     model, diffusion = create_model_and_diffusion(args)
     model.to(mydevice)
@@ -45,11 +54,6 @@ def main(args):
 
 
 if __name__ == '__main__':
-    '''
-    cd ./BEAT-main/mydiffusion_beat/
-    python end2end.py --config=./configs/DiffuseStyleGesture.yml --gpu 0
-    '''
-
     args = parse_args()
     device_name = 'cuda:' + args.gpu
     mydevice = torch.device(device_name)
@@ -74,30 +78,14 @@ if __name__ == '__main__':
     elif config.name == 'DiffuseStyleGesture':
         config.cond_mode = 'cross_local_attention3_style1'
         
+    # TWH-only training entrypoint
+    config.dataset = 'TWH'
+
     config.save_dir = "./" + config.dataset + "_mymodel4_512" + '_' + config.version
     if config.suffix != "":
         config.save_dir = config.save_dir + '_' + config.suffix
     print('model save path: ', config.save_dir, '   version:', config.version)
     
-    if config.dataset == 'BEAT':
-        config.style_dim = 2
-        config.audio_feature_dim = 1434
-        if 'v0' in config.version:
-            config.motion_dim = 684
-            config.njoints = 2052
-        elif 'v2' in config.version:
-            config.motion_dim = 1141
-            config.njoints = 1141
-    elif config.dataset == 'TWH':
-        if 'v0' in config.version:
-            config.motion_dim = 744
-            config.njoints = 2232
-            config.latent_dim =  512
-            config.audio_feat_dim_latent = 128
-            config.style_dim = 17
-            config.audio_feature_dim = 1435     # with laugh
-    else:
-        raise NotImplementedError
     #config.h5file = '../process/' + config.dataset + '_' + config.version + '.h5'
-    config.h5file = '../process/' + 'trn_main-agent_v0' + '.h5'
+    config.h5file = '../process/' + 'trn_main-agent_v0_yqr' + '.h5'
     main(config)

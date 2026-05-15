@@ -167,17 +167,17 @@ class GaussianDiffusion:
         self.num_timesteps = int(betas.shape[0])
 
         alphas = 1.0 - betas
-        self.alphas_cumprod = np.cumprod(alphas, axis=0)
-        self.alphas_cumprod_prev = np.append(1.0, self.alphas_cumprod[:-1])
-        self.alphas_cumprod_next = np.append(self.alphas_cumprod[1:], 0.0)
+        self.alphas_cumprod = np.cumprod(alphas, axis=0)    # gives \bar{\alpha}_t
+        self.alphas_cumprod_prev = np.append(1.0, self.alphas_cumprod[:-1]) # gives \bar{\alpha}_{t-1}
+        self.alphas_cumprod_next = np.append(self.alphas_cumprod[1:], 0.0)  # gives \bar{\alpha}_{t+1}
         assert self.alphas_cumprod_prev.shape == (self.num_timesteps,)
 
         # calculations for diffusion q(x_t | x_{t-1}) and others
-        self.sqrt_alphas_cumprod = np.sqrt(self.alphas_cumprod)
-        self.sqrt_one_minus_alphas_cumprod = np.sqrt(1.0 - self.alphas_cumprod)
-        self.log_one_minus_alphas_cumprod = np.log(1.0 - self.alphas_cumprod)
-        self.sqrt_recip_alphas_cumprod = np.sqrt(1.0 / self.alphas_cumprod)
-        self.sqrt_recipm1_alphas_cumprod = np.sqrt(1.0 / self.alphas_cumprod - 1)
+        self.sqrt_alphas_cumprod = np.sqrt(self.alphas_cumprod) # gives \sqrt{\bar{\alpha}_t}
+        self.sqrt_one_minus_alphas_cumprod = np.sqrt(1.0 - self.alphas_cumprod) # gives \sqrt{1 - \bar{\alpha}_t}
+        self.log_one_minus_alphas_cumprod = np.log(1.0 - self.alphas_cumprod)   # gives \log(1 - \bar{\alpha}_t)
+        self.sqrt_recip_alphas_cumprod = np.sqrt(1.0 / self.alphas_cumprod)   # gives \sqrt{1 / \bar{\alpha}_t}
+        self.sqrt_recipm1_alphas_cumprod = np.sqrt(1.0 / self.alphas_cumprod - 1)   # gives \sqrt{1 / \bar{\alpha}_t - 1}
 
         # calculations for posterior q(x_{t-1} | x_t, x_0)
         self.posterior_variance = (

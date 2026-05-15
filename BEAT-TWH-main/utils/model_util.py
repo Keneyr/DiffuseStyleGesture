@@ -57,7 +57,7 @@ def get_model_args(args, data):
 
 
 def create_gaussian_diffusion():
-    noise_schedule = 'cosine'
+    noise_schedule = 'cosine'   # \{betas\} is not learned, but follows a pre-defined schedule. "cosine" is recommended.
     sigma_small = True
     lambda_vel = 0.0
     lambda_rcxyz = 0.0

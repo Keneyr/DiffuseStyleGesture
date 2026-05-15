@@ -4,8 +4,8 @@ import h5py
 import numpy as np
 
 
-def main(dataset, version):
-    h5 = h5py.File(dataset + "_" + version + ".h5", "r")
+def main(dataset, datatype, participant, version):
+    h5 = h5py.File(datatype + "_" + participant + "_" + version + ".h5", "r")
     gesture_trn = [h5[key]['gesture'][:] for key in h5.keys()]
     h5.close()
     print("Total trn clips:", len(gesture_trn))     # Total trn clips: 27
@@ -19,7 +19,9 @@ def main(dataset, version):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='calculate_gesture_statistics.py')
-    parser.add_argument('--dataset', type=str, default='BEAT')
+    parser.add_argument('--dataset', type=str, default='TWH')
+    parser.add_argument('--datatype', type=str, default='trn')
+    parser.add_argument('--participant', type=str, default='main-agent')
     parser.add_argument('--version', type=str, default='v0')
     args = parser.parse_args()
-    main(args.dataset, args.version)
+    main(args.dataset, args.datatype, args.participant, args.version)

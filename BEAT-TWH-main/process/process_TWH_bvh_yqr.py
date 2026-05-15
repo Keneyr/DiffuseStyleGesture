@@ -20,8 +20,74 @@ from tqdm import tqdm
 import h5py
 import argparse
 
-bone_names = ['body_world', 'b_root', 'b_l_upleg', 'b_l_leg', 'b_l_foot_twist', 'b_l_foot', 'b_r_upleg', 'b_r_leg', 'b_r_foot_twist', 'b_r_foot', 'b_spine0', 'b_spine1', 'b_spine2', 'b_spine3', 'b_neck0', 'b_head', 'b_l_shoulder', 'p_l_scap', 'b_l_arm', 'b_l_arm_twist', 'b_l_forearm', 'b_l_wrist_twist', 'b_l_wrist', 'b_l_thumb0', 'b_l_thumb1', 'b_l_thumb2', 'b_l_thumb3', 'b_l_index1', 'b_l_index2', 'b_l_index3', 'b_l_middle1', 'b_l_middle2', 'b_l_middle3', 'b_l_ring1', 'b_l_ring2', 'b_l_ring3', 'b_l_pinky1', 'b_l_pinky2', 'b_l_pinky3', 'b_r_shoulder', 'p_r_scap', 'b_r_arm', 'b_r_arm_twist', 'b_r_forearm', 'b_r_wrist_twist', 'b_r_wrist', 'b_r_index1', 'b_r_index2', 'b_r_index3', 'b_r_ring1', 'b_r_ring2', 'b_r_ring3', 'b_r_middle1', 'b_r_middle2', 'b_r_middle3', 'b_r_pinky1', 'b_r_pinky2', 'b_r_pinky3', 'b_r_thumb0', 'b_r_thumb1', 'b_r_thumb2', 'b_r_thumb3']
-
+bone_names = [
+    "root",
+    "pelvis",
+    "spine_01",
+    "spine_02",
+    "spine_03",
+    "spine_04",
+    "spine_05",
+    "neck_01",
+    "neck_02",
+    "head",
+    "clavicle_l",
+    "upperarm_l",
+    "lowerarm_l",
+    "hand_l",
+    "middle_metacarpal_l",
+    "middle_01_l",
+    "middle_02_l",
+    "middle_03_l",
+    "pinky_metacarpal_l",
+    "pinky_01_l",
+    "pinky_02_l",
+    "pinky_03_l",
+    "ring_metacarpal_l",
+    "ring_01_l",
+    "ring_02_l",
+    "ring_03_l",
+    "thumb_01_l",
+    "thumb_02_l",
+    "thumb_03_l",
+    "index_metacarpal_l",
+    "index_01_l",
+    "index_02_l",
+    "index_03_l",
+    "clavicle_r",
+    "upperarm_r",
+    "lowerarm_r",
+    "hand_r",
+    "middle_metacarpal_r",
+    "middle_01_r",
+    "middle_02_r",
+    "middle_03_r",
+    "pinky_metacarpal_r",
+    "pinky_01_r",
+    "pinky_02_r",
+    "pinky_03_r",
+    "ring_metacarpal_r",
+    "ring_01_r",
+    "ring_02_r",
+    "ring_03_r",
+    "thumb_01_r",
+    "thumb_02_r",
+    "thumb_03_r",
+    "index_metacarpal_r",
+    "index_01_r",
+    "index_02_r",
+    "index_03_r",
+    "thigh_l",
+    "calf_l",
+    "foot_l",
+    "ball_l",
+    "thigh_r",
+    "calf_r",
+    "foot_r",
+    "ball_r",
+    # "eye_l",
+    # "eye_r",
+]  # 64 joints
 
 def load_bvh(bvhfile, dump_pipeline=False, mode='expmap'):
     assert mode in ('expmap', 'euler', 'quat', 'rotmat'), "mode must be one of 'expmap', 'euler', 'quat', 'rotmat'"
@@ -41,12 +107,12 @@ def load_bvh(bvhfile, dump_pipeline=False, mode='expmap'):
             ('jtsel', JointSelector(bone_names, include_root=False)),
             ('np', Numpyfier()),
         ])
-    if mode is not 'rotmat':
+    if mode != 'rotmat':
         out_data = mexp_full.fit_transform([parsed_data])[0]
     else:
         out_data = mexp_full.fit_transform([parsed_data])
     if dump_pipeline:
-        jl.dump(mexp_full, "pipeline_" + mode + '_' + str(len(bone_names)) + ".sav")
+        jl.dump(mexp_full, "pipeline_" + mode + '_' + str(len(bone_names)) + '_yqr' + ".sav")
 
     if mode == 'rotmat':
         # euler -> rotation matrix
@@ -128,7 +194,9 @@ def load_audio(audiofile, wavlm_model, cfg, device=torch.device('cuda:0')):
     onsets_resample = np.array([0.] * crop_length)
     for i in range(1, crop_length + 1):
         onsets_resample[i-1] = (max(silence[int(xp[i-1]):int(xp[i])])) == 1
-    audio_f = np.concatenate((mfcc_f[:crop_length], melspec_f[:crop_length], prosody[:crop_length], wavlm_f, onsets_resample.reshape(-1, 1)), axis=1)
+    audio_f = np.concatenate((mfcc_f[:crop_length], melspec_f[:crop_length], 
+                              prosody[:crop_length], wavlm_f, 
+                              onsets_resample.reshape(-1, 1)), axis=1)
     return audio_f
 
 
@@ -198,7 +266,7 @@ def load_tsv(tsvpath, word2vector, clip_len):
     return textfeatures
 
 
-def pose2bvh(predicted_gesture, output_dir, name, pipeline_path="./pipeline_expmap_25.sav"):
+def pose2bvh(predicted_gesture, output_dir, name, pipeline_path="./pipeline_rotmat_64_yqr.sav"):
     mode = pipeline_path.split("_")[1]
     pipeline = jl.load(pipeline_path)
 
@@ -276,11 +344,11 @@ def load_metadata(metadata, participant, return_filenames: bool = False):
     return num_speakers, metadict_byfname, metadict_byindex
 
 
-def prepare_data(data_path, dataset_type, participant, mode, save_path, wavlm_model, word2vector, preload, version, 
-                 debug=False, device=torch.device('cuda:0')):
+def prepare_data(data_path, dataset_type, participant, mode, save_path, 
+                 wavlm_model, word2vector, version, device=torch.device('cuda:0')):
     assert dataset_type in ("trn", "val", "tst"), "`dataset_type` must be either 'trn', 'val', or 'tst'"
     assert participant in ("main-agent", "interloctr"), "`participant` must be either 'main-agent' or 'interloctr'"
-    motion_save_path = os.path.join(save_path, dataset_type, participant, 'gesture_TWH')
+    motion_save_path = os.path.join(save_path, dataset_type, participant, 'gesture_metahuman_TWH')
     audio_save_path = os.path.join(save_path, dataset_type, participant, 'audio_TWH')
     text_save_path = os.path.join(save_path, dataset_type, participant, 'text_TWH')
     if not os.path.exists(motion_save_path):
@@ -297,14 +365,12 @@ def prepare_data(data_path, dataset_type, participant, mode, save_path, wavlm_mo
 
     wavdir = os.path.join(dataroot, participant, "wav")
     tsvdir = os.path.join(dataroot, participant, "tsv")
-    bvhdir = os.path.join(dataroot, participant, "bvh")
+    bvhdir = os.path.join(dataroot, participant, "meta_bvh")
     
-    if debug:
-        all_filenames = ['trn_2023_v0_169_main-agent']
-    else:
-        all_filenames = filenames
     
-    with h5py.File(f"{dataset_type}_{participant}_v0.h5", "w") as h5:
+    all_filenames = filenames
+    
+    with h5py.File(f"{dataset_type}_{participant}_v0_yqr.h5", "w") as h5:
     #with h5py.File(f"TWH_" + version + ".h5", "w") as h5:
         for i, filename in enumerate(all_filenames):
             print(f"Processing {i+1}/{len(filenames)}: {filename}", end="\r")
@@ -314,42 +380,27 @@ def prepare_data(data_path, dataset_type, participant, mode, save_path, wavlm_mo
             tsvpath = os.path.join(tsvdir, filename + ".tsv")
             bvhpath = os.path.join(bvhdir, filename + ".bvh")
 
-            if not preload:
-                if dataset_type == 'trn' or dataset_type == 'val' or (dataset_type == 'tst' and participant == 'interloctr'):
-                    # process gesture
-                    dump_pipeline = (filename == 'trn_2023_v0_002_main-agent')
-                    bvh = load_bvh(bvhpath, dump_pipeline=dump_pipeline, mode=mode)
-                    np.save(os.path.join(motion_save_path, filename + ".npy"), bvh)
-
-                # process audio
-                if os.path.exists(os.path.join(audio_save_path, filename + ".npy")):
-                    print(f'{filename} exist')
-                    continue
-                wav = load_audio(wavpath, wavlm_model, cfg, device=device)
-                #if dataset_type == 'trn' or dataset_type == 'val':
-                np.save(os.path.join(audio_save_path, filename + ".npy"), wav)
-                #else:
-                    #np.save(os.path.join(audio_save_path, filename + '_' + str(speaker_id) + ".npy"), wav)
-
-                # process text
-                if os.path.exists(os.path.join(text_save_path, filename + ".npy")):
-                    print(f'{filename} exist')
-                    continue
-                # clip_len = np.load(os.path.join(audio_save_path, filename + ".npy")).shape[0]
-                clip_len = wav.shape[0]
-                tsv = load_tsv(tsvpath, word2vector, clip_len)
-                np.save(os.path.join(text_save_path, filename + ".npy"), tsv)
-            else:
-                if dataset_type == 'trn' or dataset_type == 'val':
-                    # process gesture
-                    bvh = np.load(os.path.join(motion_save_path, filename + ".npy"))
-
-                # process audio
-                wav = np.load(os.path.join(audio_save_path, filename + ".npy"))
-
-                # process text
-                tsv = np.load(os.path.join(text_save_path, filename + ".npy"))
-
+            if dataset_type == 'trn' or dataset_type == 'val' or (dataset_type == 'tst' and participant == 'interloctr'):
+                # process gesture
+                dump_pipeline = (filename == 'trn_2023_v0_002_main-agent')
+                bvh = load_bvh(bvhpath, dump_pipeline=dump_pipeline, mode=mode)
+                np.save(os.path.join(motion_save_path, filename + ".npy"), bvh)
+            # process audio
+            # if os.path.exists(os.path.join(audio_save_path, filename + ".npy")):
+            #     print(f'{filename} exist')
+            #     continue
+            wav = load_audio(wavpath, wavlm_model, cfg, device=device)
+            np.save(os.path.join(audio_save_path, filename + ".npy"), wav)
+      
+            # process text
+            # if os.path.exists(os.path.join(text_save_path, filename + ".npy")):
+            #     print(f'{filename} exist')
+            #     continue
+            # clip_len = np.load(os.path.join(audio_save_path, filename + ".npy")).shape[0]
+            clip_len = wav.shape[0]
+            tsv = load_tsv(tsvpath, word2vector, clip_len)
+            np.save(os.path.join(text_save_path, filename + ".npy"), tsv)
+            
             if dataset_type == 'trn' or dataset_type == 'val' or (dataset_type == 'tst' and participant == 'interloctr'):
                 clip_len = min(bvh.shape[0], wav.shape[0], tsv.shape[0])
                 bvh = bvh[:clip_len]
@@ -372,30 +423,18 @@ if __name__ == '__main__':
     parser.add_argument('--wavlm_path', type=str, default='./WavLM/WavLM-Large.pt')
     parser.add_argument('--word2vector_path', type=str, default='./crawl-300d-2M.vec')
     parser.add_argument('--gpu', type=str, default='0')
-    parser.add_argument("--step", type=str, default='1')
     parser.add_argument('--save_path', type=str, default='./dataset/processed/')
-    parser.add_argument('--debug', type=str, default='False')
 
     args = parser.parse_args()
     
-    debug = args.debug == 'True'
-    
-    if args.step == '1':
-        wavlm_path = args.wavlm_path
-        word2vector_path = args.word2vector_path
-        wavlm_model, cfg = wavlm_init(wavlm_path, torch.device('cuda:' + args.gpu))
-        word2vector = load_wordvectors(fname=word2vector_path)
-        for dataset_type in ['trn', 'val', 'tst']:     # 'trn', 'val', 'tst'
-            for participant in ['main-agent', 'interloctr']:      # , 'interloctr'
-                prepare_data(args.dataroot, dataset_type, participant, args.mode, args.save_path, wavlm_model, 
-                             word2vector, preload=False, version=args.version, debug=debug, device=torch.device('cuda:' + args.gpu))
-    elif args.step == '2':
-        wavlm_model, cfg = None, None
-        word2vector = None
-        for dataset_type in ['trn']:     # 'trn', 'val', 'tst'
-            for participant in ['main-agent']:      # , 'interloctr'
-                prepare_data(args.dataroot, dataset_type, participant, args.mode, args.save_path, wavlm_model, 
-                             word2vector, preload=True, version=args.version, debug=debug)
+    wavlm_path = args.wavlm_path
+    word2vector_path = args.word2vector_path
+    wavlm_model, cfg = wavlm_init(wavlm_path, torch.device('cuda:' + args.gpu))
+    word2vector = load_wordvectors(fname=word2vector_path)
+    for dataset_type in ['trn']:     # 'trn', 'val', 'tst'
+        for participant in ['main-agent', 'interloctr']:      # , 'interloctr'
+            prepare_data(args.dataroot, dataset_type, participant, args.mode, args.save_path, wavlm_model, 
+                            word2vector, version=args.version, device=torch.device('cuda:' + args.gpu))
 
 
 

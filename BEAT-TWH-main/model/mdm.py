@@ -10,7 +10,7 @@ from local_attention import LocalAttention
 class MDM(nn.Module):
     def __init__(self, modeltype, njoints, nfeats,
                  latent_dim=256, ff_size=1024, num_layers=8, num_heads=4, dropout=0.1,
-                 ablation=None, activation="gelu", legacy=False, data_rep='rot6d', dataset='amass', clip_dim=512,
+                 ablation=None, activation="gelu", legacy=False, data_rep='rot6d', dataset='TWH', clip_dim=512,
                  arch='trans_enc', emb_trans_dec=False, audio_feat='', n_seed=1, cond_mode='', device='cpu', 
                  style_dim=-1, source_audio_dim=-1, audio_feat_dim_latent=-1, **kargs):
         super().__init__()
@@ -283,7 +283,7 @@ class PositionalEncoding(nn.Module):
         super(PositionalEncoding, self).__init__()
         self.dropout = nn.Dropout(p=dropout)
 
-        pe = torch.zeros(max_len, d_model)      # (5000, 128)
+        pe = torch.zeros(max_len, d_model)      # (5000, 512)
         position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)     # (5000, 1)
         div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-np.log(10000.0) / d_model))
         pe[:, 0::2] = torch.sin(position * div_term)

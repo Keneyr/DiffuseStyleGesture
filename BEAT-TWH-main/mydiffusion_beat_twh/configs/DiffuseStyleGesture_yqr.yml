@@ -1,0 +1,33 @@
+# v0: xyz, v1: ZEGGS by yongkang, v1: ZEGGS by yongkang bugfix
+
+h5file: "../process/speaker_2_10"   # "../process/speaker_2_10_v0.h5"
+n_poses: 150  #sliding widow length
+motion_resampling_framerate: 30     # 20 -> 60
+motion_dim: 768     # 64 joints * 12 (rot + pos)
+njoints: 2304    # 768 * 3 = 2304, posrat, vel, acc
+latent_dim: 512   # 256 -> 512, 384
+n_seed: 30 # n_poses/5
+cond_mask_prob: 0.1
+style_dim: 17
+audio_feature_dim: 1435   # 1133 + 302; audio_f + text_f
+audio_feat_dim_latent: 128   # 64 -> 128, 96
+num_workers: 2
+batch_size: 96  #32
+log_interval: 100
+weight_decay: 0.0
+lr_anneal_steps: 0
+save_dir: "./TWH_mymodel4_512"
+audio_feat: "wavlm"
+resume_step: 0
+max_num_steps: 400000
+save_iters: 10000
+max_checkpoints: 3
+name: "DiffuseStyleGesture+"   # "DiffuseStyleGesture", "DiffuseStyleGesture+", "DiffuseStyleGesture++"
+version: "v0_yqr"   # "v0, v1"
+suffix: "windows_150_seed_30"
+
+lr: 0.00003     # 0.00003 ->
+betas: [0.5, 0.999]
+milestones: [100, 200]
+gamma: 0.1
+

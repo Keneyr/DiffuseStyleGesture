@@ -1,0 +1,87 @@
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+env/
+venv/
+.venv/
+
+# Editor/project files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Logs
+*.log
+logs/
+
+# System
+.DS_Store
+Thumbs.db
+
+# Build/dist
+build/
+dist/
+*.egg-info/
+
+# Data, models, checkpoints, and large artifacts
+/data/
+/dataset/
+/datasets/
+/BEAT_dataset/
+/TWH_dataset/
+/output/
+/outputs/
+/logs/
+/runs/
+/checkpoints/
+*.h5
+*.hdf5
+*.pt
+*.pth
+*.ckpt
+*.ckpt.*
+*.npz
+*.npy
+*.tar
+*.tar.gz
+*.zip
+*.gz
+*.pkl
+*.sav
+*.pth.tar
+*.fbx
+*.bvh
+*.Identifier
+*.vec
+*.csv
+*.txt
+
+# Tensorboard
+events.out.tfevents.*
+
+# Environment files
+.env
+
+# Ignore model, weight and dataset directories commonly created by experiments
+weights/
+models/
+checkpoints/
+trained_models/
+
+# macOS
+.Spotlight-V100
+.Trashes
+
+# Misc
+*.cache
+*.bak
+*.tmp
+
+# You can customize this file — remove entries you want tracked.
